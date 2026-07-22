@@ -280,30 +280,45 @@ Retrieves aggregate returns across all user holdings.
 
 ---
 
-## 🌐 Railway Deployment
+## 🌐 Production Deployment
 
-The backend API and PostgreSQL database are deployed to Railway under a production configuration.
+The FinVestia application is fully deployed to production:
 
-* **Backend API Base URL**: `https://finvestia-backend-production.up.railway.app`
-* **Database Target**: Railway PostgreSQL Service (`Postgres`)
+* **Frontend Web Client (Vercel)**: [https://frontend-one-navy-kbvhxymbub.vercel.app](https://frontend-one-navy-kbvhxymbub.vercel.app)
+* **Backend API Service (Railway)**: [https://finvestia-backend-production.up.railway.app](https://finvestia-backend-production.up.railway.app)
+* **Database Target (Railway)**: PostgreSQL Service (`Postgres`)
 
-### Frontend Integration
-When deploying a frontend client that communicates with this backend, configure the backend API URL as an environment variable:
-```env
-# Example for Next.js frontend
-NEXT_PUBLIC_API_URL="https://finvestia-backend-production.up.railway.app"
-```
+---
 
-### Backend Production Environment Variables
-Configure these variables in your Railway backend service settings:
-* `NODE_ENV`: `production`
+### 🎨 Frontend Configuration (Vercel)
+
+The frontend is built and deployed using Vercel.
+
+#### Required Build-time Environment Variables
+Configure the following in your Vercel Project Settings:
+* `NEXT_PUBLIC_API_URL`: `https://finvestia-backend-production.up.railway.app` (Production backend endpoint URL)
+
+#### Build & Routing Details
+* **Build Command**: `next build` (compiled output built into `.next` directory)
+* **Framework Preset**: `Next.js`
+* **Direct Route Refreshes**: Next.js App Router dynamic paths (`/login`, `/register`, `/dashboard`) are served with correct routing fallbacks by Vercel's edge network, avoiding raw 404 errors on browser page reloads.
+
+---
+
+### ⚡ Backend Configuration (Railway)
+
+The NestJS backend runs inside a secure Docker container, connecting to the PostgreSQL instance via private hostname references.
+
+#### Required Environment Variables
+Configure the following in your Railway service settings:
+* `NODE_ENV`: `production` (runs the NestJS server in production mode)
 * `PORT`: `3001` (matches container port mapping)
-* `DATABASE_URL`: `postgresql://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}?schema=public` (automatically links to the Postgres service using reference variables)
-* `JWT_SECRET`: A secure randomly generated string for signing JWT tokens.
-* `FRONTEND_URL`: Comma-separated list of CORS-approved frontend origins (e.g., `https://your-frontend.vercel.app`).
+* `DATABASE_URL`: `postgresql://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}?schema=public` (linked dynamically to the Postgres service variables)
+* `JWT_SECRET`: A secure randomly generated string for signing JWT session tokens.
+* `FRONTEND_URL`: `http://localhost:3000,https://frontend-one-navy-kbvhxymbub.vercel.app` (comma-separated origins permitted by NestJS CORS policy)
 
-### Production Scripts & Migration Process
-* **Production Build Command**: `npm run build` (compiles NestJS to `dist/src/main.js`)
-* **Production Start Command**: `npm run start:prod` (executes `node dist/src/main`)
-* **Database Migration Command**: `npx prisma migrate deploy` (automatically run on container start before launching the web server)
-  ```
+#### Build & Migration Scripts
+* **Build Command**: `npm run build` (compiles NestJS source to `dist/src/main.js`)
+* **Start Command**: `npm run start:prod` (executes `node dist/src/main`)
+* **Automated Migrations**: `npx prisma migrate deploy` is run automatically at container startup before launching the web server. It reads the local `prisma.config.ts` definition to safely run pending schema updates without dropping existing records.
+
