@@ -277,4 +277,33 @@ Retrieves aggregate returns across all user holdings.
     "profit": 12000.00,
     "profitPercentage": 24.00
   }
+
+---
+
+## 🌐 Railway Deployment
+
+The backend API and PostgreSQL database are deployed to Railway under a production configuration.
+
+* **Backend API Base URL**: `https://finvestia-backend-production.up.railway.app`
+* **Database Target**: Railway PostgreSQL Service (`Postgres`)
+
+### Frontend Integration
+When deploying a frontend client that communicates with this backend, configure the backend API URL as an environment variable:
+```env
+# Example for Next.js frontend
+NEXT_PUBLIC_API_URL="https://finvestia-backend-production.up.railway.app"
+```
+
+### Backend Production Environment Variables
+Configure these variables in your Railway backend service settings:
+* `NODE_ENV`: `production`
+* `PORT`: `3001` (matches container port mapping)
+* `DATABASE_URL`: `postgresql://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.PGHOST}}:${{Postgres.PGPORT}}/${{Postgres.PGDATABASE}}?schema=public` (automatically links to the Postgres service using reference variables)
+* `JWT_SECRET`: A secure randomly generated string for signing JWT tokens.
+* `FRONTEND_URL`: Comma-separated list of CORS-approved frontend origins (e.g., `https://your-frontend.vercel.app`).
+
+### Production Scripts & Migration Process
+* **Production Build Command**: `npm run build` (compiles NestJS to `dist/src/main.js`)
+* **Production Start Command**: `npm run start:prod` (executes `node dist/src/main`)
+* **Database Migration Command**: `npx prisma migrate deploy` (automatically run on container start before launching the web server)
   ```
