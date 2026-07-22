@@ -20,7 +20,8 @@ import {
   X,
   AlertCircle,
   LayoutDashboard,
-  Coins
+  Coins,
+  Menu
 } from 'lucide-react';
 
 interface Investment {
@@ -49,6 +50,7 @@ interface Toast {
 export default function DashboardPage() {
   const router = useRouter();
   const [user] = useState<{ name: string; email: string } | null>(() => getAuthUser());
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // States
   const [investments, setInvestments] = useState<Investment[]>([]);
@@ -293,8 +295,13 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Sidebar Backdrop Overlay */}
+      {isSidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} />
+      )}
+
       {/* Sidebar Panel */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <div className="logo-icon">
             <Coins size={20} />
@@ -341,22 +348,33 @@ export default function DashboardPage() {
       <main className="main-workspace">
         {/* Workspace Header */}
         <header className="workspace-header">
-          <div style={{ visibility: 'hidden' }}>Search...</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', position: 'relative' }}>
-              <Bell size={20} />
-              <span style={{
-                position: 'absolute',
-                top: '-2px',
-                right: '-2px',
-                backgroundColor: '#ef4444',
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%'
-              }}></span>
+          <div className="header-left">
+            <button 
+              className="btn-menu-trigger" 
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open Menu"
+            >
+              <Menu size={20} />
             </button>
-            <div style={{ fontSize: '14px', fontWeight: 500, color: '#475569' }}>
-              Hi, <span style={{ fontWeight: 600, color: '#0f172a' }}>{user?.name}</span>
+            <div className="mobile-header-logo">
+              <Coins size={18} className="logo-color" style={{ color: '#6366f1' }} />
+              <span className="font-outfit font-bold" style={{ fontSize: '16px', color: '#0f172a' }}>FinVestia</span>
+            </div>
+          </div>
+          <div className="header-right">
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Bell size={20} />
+              <span className="bell-badge"></span>
+            </button>
+            <div className="header-user-profile">
+              <span className="user-name-text">
+                Hi, <span style={{ fontWeight: 600, color: '#0f172a' }}>{user?.name}</span>
+              </span>
+              {user && (
+                <div className="header-avatar">
+                  {getInitials(user.name)}
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -459,34 +477,71 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ) : (
-                <table className="custom-table">
-                  <thead>
-                    <tr>
-                      <th>Investment Name</th>
-                      <th>Type</th>
-                      <th>Invested Amount</th>
-                      <th>Current Value</th>
-                      <th>Purchase Date</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <>
+                  <div className="desktop-table-view">
+                    <table className="custom-table">
+                      <thead>
+                        <tr>
+                          <th>Investment Name</th>
+                          <th>Type</th>
+                          <th>Invested Amount</th>
+                          <th>Current Value</th>
+                          <th>Purchase Date</th>
+                          <th style={{ textAlign: 'right' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {investments.map((inv) => {
+                          const profit = inv.currentValue - inv.investedAmount;
+                          const isProfit = profit >= 0;
+                          return (
+                            <tr key={inv.id}>
+                              <td style={{ fontWeight: 600, color: '#0f172a' }}>{inv.investmentName}</td>
+                              <td>
+                                <span className={`badge-type badge-${inv.investmentType.toLowerCase().replace(/\s+/g, '-')}`}>{inv.investmentType}</span>
+                              </td>
+                              <td style={{ fontWeight: 500 }}>{formatCurrency(inv.investedAmount)}</td>
+                              <td className={isProfit ? 'text-profit' : 'text-loss'}>
+                                {formatCurrency(inv.currentValue)}
+                              </td>
+                              <td style={{ color: '#475569' }}>{formatDate(inv.purchaseDate)}</td>
+                              <td>
+                                <div className="action-buttons" style={{ justifyContent: 'flex-end' }}>
+                                  <button 
+                                    className="btn-icon edit" 
+                                    title="Edit"
+                                    onClick={() => openEditDrawer(inv)}
+                                  >
+                                    <Edit2 size={14} />
+                                  </button>
+                                  <button 
+                                    className="btn-icon delete" 
+                                    title="Delete"
+                                    onClick={() => handleDelete(inv.id, inv.investmentName)}
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="mobile-cards-view">
                     {investments.map((inv) => {
                       const profit = inv.currentValue - inv.investedAmount;
                       const isProfit = profit >= 0;
                       return (
-                        <tr key={inv.id}>
-                          <td style={{ fontWeight: 600, color: '#0f172a' }}>{inv.investmentName}</td>
-                          <td>
-                            <span className={`badge-type badge-${inv.investmentType.toLowerCase().replace(/\s+/g, '-')}`}>{inv.investmentType}</span>
-                          </td>
-                          <td style={{ fontWeight: 500 }}>{formatCurrency(inv.investedAmount)}</td>
-                          <td className={isProfit ? 'text-profit' : 'text-loss'}>
-                            {formatCurrency(inv.currentValue)}
-                          </td>
-                          <td style={{ color: '#475569' }}>{formatDate(inv.purchaseDate)}</td>
-                          <td>
-                            <div className="action-buttons" style={{ justifyContent: 'flex-end' }}>
+                        <div key={inv.id} className="investment-mobile-card">
+                          <div className="mobile-card-header">
+                            <div className="mobile-card-title-group">
+                              <div className="mobile-card-title">{inv.investmentName}</div>
+                              <span className={`badge-type badge-${inv.investmentType.toLowerCase().replace(/\s+/g, '-')}`}>{inv.investmentType}</span>
+                            </div>
+                            <div className="action-buttons">
                               <button 
                                 className="btn-icon edit" 
                                 title="Edit"
@@ -502,12 +557,28 @@ export default function DashboardPage() {
                                 <Trash2 size={14} />
                               </button>
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                          <div className="mobile-card-body">
+                            <div className="mobile-card-row">
+                              <span className="mobile-card-label">Invested</span>
+                              <span className="mobile-card-val font-semibold">{formatCurrency(inv.investedAmount)}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                              <span className="mobile-card-label">Current Value</span>
+                              <span className={`mobile-card-val font-semibold ${isProfit ? 'text-profit' : 'text-loss'}`}>
+                                {formatCurrency(inv.currentValue)}
+                              </span>
+                            </div>
+                            <div className="mobile-card-row">
+                              <span className="mobile-card-label">Purchase Date</span>
+                              <span className="mobile-card-val" style={{ color: '#475569' }}>{formatDate(inv.purchaseDate)}</span>
+                            </div>
+                          </div>
+                        </div>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </div>
+                </>
               )}
             </div>
             {investments.length > 0 && (

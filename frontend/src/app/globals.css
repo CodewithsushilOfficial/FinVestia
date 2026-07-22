@@ -854,3 +854,279 @@ body {
 .toast.error {
   background-color: #ef4444;
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN RULES & MEDIA QUERIES
+   ========================================================================== */
+
+/* Menu Trigger Button */
+.btn-menu-trigger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 8px;
+  margin-right: 8px;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+.btn-menu-trigger:hover {
+  background-color: rgba(15, 23, 42, 0.05);
+}
+
+/* Mobile Header Logo */
+.mobile-header-logo {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Backdrop Overlay for Mobile Sidebar */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 35;
+}
+
+/* Desktop and Mobile Views Toggle Helpers */
+.desktop-table-view {
+  display: block;
+}
+.mobile-cards-view {
+  display: none;
+}
+
+/* Header Elements Layout */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.user-name-text {
+  display: inline;
+}
+
+.header-avatar {
+  display: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
+}
+
+.bell-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #ef4444;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* 1. Large Tablets & Landscape Mobile (max-width: 1023px) */
+@media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .main-workspace {
+    margin-left: 0 !important;
+  }
+  
+  .btn-menu-trigger {
+    display: flex;
+  }
+  
+  .mobile-header-logo {
+    display: flex;
+  }
+  
+  .workspace-header {
+    padding: 0 20px;
+    height: 64px;
+  }
+  
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+/* 2. Portrait Tablets & Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+  .workspace-content {
+    padding: 20px 16px;
+  }
+  
+  .header-right {
+    gap: 12px;
+  }
+  
+  .user-name-text {
+    display: none;
+  }
+  
+  .header-avatar {
+    display: flex;
+  }
+  
+  .heading-display {
+    font-size: 24px !important;
+  }
+  
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  /* Table View Switch */
+  .desktop-table-view {
+    display: none;
+  }
+  
+  .mobile-cards-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* Mobile Investment Cards styling */
+  .investment-mobile-card {
+    background-color: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.02);
+  }
+  
+  .investment-mobile-card:hover {
+    background-color: #ffffff;
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.05);
+  }
+  
+  .mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .mobile-card-title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    max-width: 70%;
+  }
+  
+  .mobile-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    word-break: break-word;
+  }
+  
+  .mobile-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .mobile-card-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  
+  .mobile-card-label {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+  
+  .mobile-card-val {
+    color: var(--color-text-primary);
+  }
+  
+  .mobile-card-val.font-semibold {
+    font-weight: 600;
+  }
+  
+  /* Edit/Add Drawer responsiveness */
+  .drawer-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* 3. Small Mobile screens (max-width: 479px) */
+@media (max-width: 479px) {
+  .auth-wrapper {
+    padding: 16px;
+  }
+  
+  .auth-card {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+  
+  .auth-title {
+    font-size: 22px;
+  }
+  
+  .workspace-header {
+    padding: 0 12px;
+  }
+  
+  .workspace-content {
+    padding: 16px 12px;
+  }
+  
+  .data-card {
+    padding: 16px 12px;
+  }
+}
+
