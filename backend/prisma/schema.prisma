@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @db.VarChar(100)
+  email       String       @unique @db.VarChar(255)
+  password    String       @db.VarChar(255)
+  investments Investment[]
+
+  @@map("users")
+}
+
+model Investment {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  investmentName String   @map("investment_name") @db.VarChar(255)
+  investmentType String   @map("investment_type") @db.VarChar(100)
+  investedAmount Decimal  @map("invested_amount") @db.Decimal(15, 2)
+  currentValue   Decimal  @map("current_value") @db.Decimal(15, 2)
+  purchaseDate   DateTime @map("purchase_date") @db.Date
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("investments")
+}
